@@ -13,9 +13,9 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 import java.security.Principal;
+import java.util.List;
 
 @RestController
-@RequestMapping (path = "/accounts")
 @PreAuthorize("isAuthenticated()")
 public class AccountController {
 
@@ -40,19 +40,34 @@ public class AccountController {
         return account.getBalance();
     }
 
-    @PostMapping (path = "/transfer/{username}")
+    @PostMapping (path = "/myaccount/transfer/{username}")
     public Transfer sendMoney(@PathVariable String username, @RequestBody Transfer transfer, Principal principal) {
         int senderId = userDao.findIdByUsername(principal.getName());
         int otherId = userDao.findIdByUsername(username);
         transfer.setInitiatorId(senderId);
         transfer.setOtherId(otherId);
-
-        if(accountDao.transferMoney(transfer)){
+        if (accountDao.transferMoney(transfer)) {
             transfer.setStatus("Approved");
             return transferDao.createTransfer(transfer);
-
-        }else{
+        } else {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @GetMapping (path = "/myaccount/transfers")
+    public List<Transfer> myTransfers(Principal principal) {
+        int userId = userDao.findIdByUsername(principal.getName());
+        return transferDao.getTransfersByUser(userId);
+    }
+
+    @GetMapping (path = "/transfer/{id}")
+    public Transfer getTransfer(@PathVariable int id) {
+        Transfer transfer = transferDao.getTransferById(id);
+        if (transfer == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+        else {
+            return transfer;
         }
     }
 }

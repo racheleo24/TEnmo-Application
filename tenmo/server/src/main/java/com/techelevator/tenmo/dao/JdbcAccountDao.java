@@ -5,6 +5,7 @@ import com.techelevator.tenmo.model.Transfer;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -75,6 +76,9 @@ public class JdbcAccountDao implements AccountDao{
         destinationAccount.addAmount(transferAmount);
         jdbcTemplate.execute("START TRANSACTION");
         try {
+            if (originId == destinationId || transferAmount.compareTo(BigDecimal.ZERO)<=0) {
+                throw new Exception("Cannot transfer to own account.");
+            }
             updateAccount(originAccount);
             updateAccount(destinationAccount);
             jdbcTemplate.execute("COMMIT");
