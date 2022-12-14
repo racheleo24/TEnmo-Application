@@ -6,8 +6,10 @@ import com.techelevator.tenmo.dao.UserDao;
 import com.techelevator.tenmo.model.Account;
 import com.techelevator.tenmo.model.Transfer;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 import java.security.Principal;
@@ -40,17 +42,17 @@ public class AccountController {
 
     @PostMapping (path = "/transfer/{username}")
     public Transfer sendMoney(@PathVariable String username, @RequestBody Transfer transfer, Principal principal) {
-        // get account ids
         int senderId = userDao.findIdByUsername(principal.getName());
         int otherId = userDao.findIdByUsername(username);
         transfer.setInitiatorId(senderId);
         transfer.setOtherId(otherId);
 
-        // create account objects from ids
-        // update the accounts by the transfer amount using setters
-        // call the update account method with new balances to update in DB
-        // simultaneously create transfer
+        if(accountDao.transferMoney(transfer)){
+            transfer.setStatus("Approved");
+            return transferDao.createTransfer(transfer);
 
-        BigDecimal transferAmount = transfer.getTransferAmount();
+        }else{
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
     }
 }

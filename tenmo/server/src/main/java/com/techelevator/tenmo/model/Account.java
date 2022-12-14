@@ -16,6 +16,13 @@ public class Account {
     public Account() {
     }
 
+    public void subtractAmount(BigDecimal amount){
+        this.balance=balance.subtract(amount);
+    }
+    public void addAmount(BigDecimal amount){
+        this.balance=balance.add(amount);
+    }
+
     public int getAccountId() {
         return accountId;
     }

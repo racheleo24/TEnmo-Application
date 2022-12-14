@@ -1,6 +1,7 @@
 package com.techelevator.tenmo.dao;
 
 import com.techelevator.tenmo.model.Account;
+import com.techelevator.tenmo.model.Transfer;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
@@ -61,6 +62,27 @@ public class JdbcAccountDao implements AccountDao{
             accounts.add(mapRowToAccount(results));
         }
         return accounts;
+    }
+
+    @Override
+    public boolean transferMoney(Transfer transfer) {
+        BigDecimal transferAmount = transfer.getAmount();
+        int originId = transfer.getInitiatorId();
+        int destinationId = transfer.getOtherId();
+        Account originAccount = getAccountByUserId(originId);
+        originAccount.subtractAmount(transferAmount);
+        Account destinationAccount = getAccountByUserId(destinationId);
+        destinationAccount.addAmount(transferAmount);
+        jdbcTemplate.execute("START TRANSACTION");
+        try {
+            updateAccount(originAccount);
+            updateAccount(destinationAccount);
+            jdbcTemplate.execute("COMMIT");
+            return true;
+        } catch (Exception e){
+            jdbcTemplate.execute("ROLLBACK");
+            return false;
+        }
     }
 
     @Override

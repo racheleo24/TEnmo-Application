@@ -19,10 +19,10 @@ public class JdbcTransferDao implements TransferDao{
 
     @Override
     public Transfer createTransfer(Transfer transfer) {
-        String sql = "INSERT INTO transfer (initiator_user_id, other_user_id, transfer_amount, status " +
+        String sql = "INSERT INTO transfer (initiator_user_id, other_user_id, transfer_amount, status) " +
                 "VALUES (?,?,?,?) RETURNING transfer_id";
         int id = jdbcTemplate.queryForObject(sql, Integer.class, transfer.getInitiatorId(),
-                transfer.getOtherId(), transfer.getTransferAmount(), transfer.getStatus());
+                transfer.getOtherId(), transfer.getAmount(), transfer.getStatus());
         return getTransferById(id);
     }
 
@@ -69,7 +69,7 @@ public class JdbcTransferDao implements TransferDao{
         String sql = "UPDATE transfer SET initiator_user_id=?, other_user_id=?, transfer_amount=?, status=? " +
                 "WHERE transfer_id = ?";
         int rowsUpdated = jdbcTemplate.update(sql, transfer.getInitiatorId(), transfer.getOtherId(),
-                transfer.getTransferAmount(), transfer.getStatus(), transfer.getTransferId());
+                transfer.getAmount(), transfer.getStatus(), transfer.getTransferId());
         return rowsUpdated==1;
     }
 

@@ -1,6 +1,7 @@
 package com.techelevator.tenmo.dao;
 
 import com.techelevator.tenmo.model.Account;
+import com.techelevator.tenmo.model.Transfer;
 
 import java.util.List;
 
@@ -13,6 +14,7 @@ public interface AccountDao {
     Account getAccountByUserId(int id);
     List<Account> getAllAccounts();
     //Update
+    boolean transferMoney(Transfer transfer);
     boolean updateAccount(Account account);
     //Delete
     boolean deleteAccount(int id);

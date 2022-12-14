@@ -6,7 +6,7 @@ public class Transfer {
     private int transferId;
     private int initiatorId;
     private int otherId;
-    private BigDecimal transferAmount;
+    private BigDecimal amount;
     private String status;
 
     public Transfer() {
@@ -16,7 +16,7 @@ public class Transfer {
         this.transferId = transferId;
         this.initiatorId = initiatorId;
         this.otherId = otherId;
-        this.transferAmount = transferAmount;
+        this.amount = transferAmount;
         this.status = status;
     }
 
@@ -26,7 +26,7 @@ public class Transfer {
                 "transferId=" + transferId +
                 ", initiatorId=" + initiatorId +
                 ", otherId=" + otherId +
-                ", transferAmount=" + transferAmount +
+                ", transferAmount=" + amount +
                 ", status='" + status + '\'' +
                 '}';
     }
@@ -55,12 +55,12 @@ public class Transfer {
         this.otherId = otherId;
     }
 
-    public BigDecimal getTransferAmount() {
-        return transferAmount;
+    public BigDecimal getAmount() {
+        return amount;
     }
 
-    public void setTransferAmount(BigDecimal transferAmount) {
-        this.transferAmount = transferAmount;
+    public void setAmount(BigDecimal amount) {
+        this.amount = amount;
     }
 
     public String getStatus() {
