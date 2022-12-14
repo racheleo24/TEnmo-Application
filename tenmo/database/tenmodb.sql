@@ -21,7 +21,7 @@ CREATE TABLE tenmo_user (
 -- Sequence to start account_id values at 2001 instead of 1
 -- Note: Use similar sequences with unique starting values for additional tables
 CREATE SEQUENCE seq_account_id
-  INCREMENT BY 1
+  INCREMENT BY 1  
   START WITH 2001
   NO MAXVALUE;
 
