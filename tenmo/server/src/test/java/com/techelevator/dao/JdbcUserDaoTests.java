@@ -2,6 +2,7 @@ package com.techelevator.dao;
 
 
 import com.techelevator.tenmo.dao.JdbcUserDao;
+import com.techelevator.tenmo.model.Transfer;
 import com.techelevator.tenmo.model.User;
 import org.junit.Assert;
 import org.junit.Before;
@@ -9,8 +10,10 @@ import org.junit.Test;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import javax.sql.DataSource;
+import java.math.BigDecimal;
 
 public class JdbcUserDaoTests extends BaseDaoTests{
+
 
     private JdbcUserDao sut;
 
