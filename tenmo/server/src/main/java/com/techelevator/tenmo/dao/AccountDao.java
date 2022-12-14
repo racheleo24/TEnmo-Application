@@ -9,7 +9,8 @@ public interface AccountDao {
     //Create
     Account createAccount(Account account);
     //Read
-    Account getAccount(int id);
+    Account getAccountByAccountId(int id);
+    Account getAccountByUserId(int id);
     List<Account> getAllAccounts();
     //Update
     boolean updateAccount(Account account);
