@@ -1,11 +1,15 @@
 package com.techelevator.tenmo.model;
 
+import javax.validation.constraints.Min;
+import javax.validation.constraints.Positive;
 import java.math.BigDecimal;
 
 public class Transfer {
     private int transferId;
     private int initiatorId;
+    @Min (value = 1000, message = "UserId's begin at 1001.")
     private int otherId;
+    @Positive (message = "Transfer amount must be larger than 0.")
     private BigDecimal amount;
     private String status;
 

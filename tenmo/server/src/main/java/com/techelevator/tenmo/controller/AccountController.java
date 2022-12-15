@@ -1,19 +1,24 @@
 package com.techelevator.tenmo.controller;
 
 import com.techelevator.tenmo.dao.AccountDao;
+import com.techelevator.tenmo.dao.JdbcAccountDao;
 import com.techelevator.tenmo.dao.TransferDao;
 import com.techelevator.tenmo.dao.UserDao;
 import com.techelevator.tenmo.model.Account;
 import com.techelevator.tenmo.model.Transfer;
+import com.techelevator.tenmo.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.validation.Valid;
 import java.math.BigDecimal;
 import java.security.Principal;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @PreAuthorize("isAuthenticated()")
@@ -43,16 +48,17 @@ public class AccountController {
     }
 
     @PostMapping (path = "/transfer")
-    public Transfer sendMoney(@RequestBody Transfer transfer, Principal principal) {
+    public Transfer sendMoney(@Valid @RequestBody Transfer transfer, Principal principal) {
         int senderId = userDao.findIdByUsername(principal.getName());
         int otherId = transfer.getOtherId();
         transfer.setInitiatorId(senderId);
         transfer.setOtherId(otherId);
-        if (accountDao.transferMoney(transfer)) {
+        int statusCode = accountDao.transferMoney(transfer);
+        if (statusCode == JdbcAccountDao.SUCCESS) {
             transfer.setStatus("Approved");
             return transferDao.createTransfer(transfer);
         } else {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+            throw getException(statusCode);
         }
     }
 
@@ -71,5 +77,36 @@ public class AccountController {
         else {
             return transfer;
         }
+    }
+
+    @GetMapping (path = "/users")
+    public Map<Integer, String> getAllUsers(Principal principal) {
+        List<User> allUsers = userDao.findAll();
+        Map<Integer, String> userMap = new HashMap<>();
+        for (User user : allUsers) {
+            if (!principal.getName().equals(user.getUsername())) {
+                userMap.put(user.getId(), user.getUsername());
+            }
+        }
+            return userMap;
+        }
+
+    public ResponseStatusException getException(int statusCode) {
+        if (statusCode == JdbcAccountDao.DATABASE_ERROR) {
+            return new ResponseStatusException(HttpStatus.BAD_REQUEST, "Database error.");
+        }
+        if (statusCode == JdbcAccountDao.MISSING_ACCOUNT) {
+            return new ResponseStatusException(HttpStatus.NOT_FOUND, "Recipient user does not exist.");
+        }
+        if (statusCode == JdbcAccountDao.OVERDRAFT) {
+            return new ResponseStatusException(HttpStatus.BAD_REQUEST, "Insufficient funds.");
+        }
+        if (statusCode == JdbcAccountDao.SAME_ACCOUNT) {
+            return new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unable to transfer money to own account.");
+        }
+        if (statusCode == JdbcAccountDao.ZERO_AMOUNT) {
+            return new ResponseStatusException(HttpStatus.BAD_REQUEST, "Transfer amount must be greater than 0.");
+        }
+        return new ResponseStatusException(HttpStatus.I_AM_A_TEAPOT, "This should never happen.");
     }
 }

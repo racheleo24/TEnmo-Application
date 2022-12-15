@@ -14,10 +14,18 @@ import java.util.List;
 @Component
 public class JdbcAccountDao implements AccountDao{
     JdbcTemplate jdbcTemplate;
+    // Error messages
+    public static final int SUCCESS = 0;
+    public static final int OVERDRAFT = 1;
+    public static final int SAME_ACCOUNT = 2;
+    public static final int ZERO_AMOUNT = 3;
+    public static final int MISSING_ACCOUNT = 4;
+    public static final int DATABASE_ERROR = 5;
 
     public JdbcAccountDao(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
+
 
     @Override
     public Account createAccount(Account account) {
@@ -66,26 +74,42 @@ public class JdbcAccountDao implements AccountDao{
     }
 
     @Override
-    public boolean transferMoney(Transfer transfer) {
+    public int transferMoney(Transfer transfer) {
+        // pulling out values
         BigDecimal transferAmount = transfer.getAmount();
         int originId = transfer.getInitiatorId();
         int destinationId = transfer.getOtherId();
         Account originAccount = getAccountByUserId(originId);
-        originAccount.subtractAmount(transferAmount);
         Account destinationAccount = getAccountByUserId(destinationId);
+
+        // exception handling
+        if (transferAmount.compareTo(BigDecimal.ZERO) <= 0) {
+            return JdbcAccountDao.ZERO_AMOUNT;
+        }
+        if (transferAmount.compareTo(originAccount.getBalance()) > 0) {
+            return JdbcAccountDao.OVERDRAFT;
+        }
+        if (originId == destinationId) {
+            return JdbcAccountDao.SAME_ACCOUNT;
+        }
+        if (getAccountByUserId(destinationId) == null) {
+            return JdbcAccountDao.MISSING_ACCOUNT;
+        }
+
+        // updating account balances on Java end
+        originAccount.subtractAmount(transferAmount);
         destinationAccount.addAmount(transferAmount);
+
+        // sending transaction to DB
         jdbcTemplate.execute("START TRANSACTION");
         try {
-            if (originId == destinationId || transferAmount.compareTo(BigDecimal.ZERO)<=0) {
-                throw new Exception("Cannot transfer to own account.");
-            }
             updateAccount(originAccount);
             updateAccount(destinationAccount);
             jdbcTemplate.execute("COMMIT");
-            return true;
+            return JdbcAccountDao.SUCCESS;
         } catch (Exception e){
             jdbcTemplate.execute("ROLLBACK");
-            return false;
+            return JdbcAccountDao.DATABASE_ERROR;
         }
     }
 

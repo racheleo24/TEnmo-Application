@@ -1,10 +1,14 @@
 package com.techelevator.tenmo.model;
 
+import javax.validation.constraints.Min;
+import javax.validation.constraints.PositiveOrZero;
 import java.math.BigDecimal;
 
 public class Account {
     private int accountId;
+    @Min (value = 1000, message = "UserId's begin at 1001.")
     private int userId;
+    @PositiveOrZero (message = "Balance cannot fall below 0.")
     private BigDecimal balance;
 
     public Account(int accountId, int userId, BigDecimal balance) {

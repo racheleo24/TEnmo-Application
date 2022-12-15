@@ -14,7 +14,7 @@ public interface AccountDao {
     Account getAccountByUserId(int id);
     List<Account> getAllAccounts();
     //Update
-    boolean transferMoney(Transfer transfer);
+    int transferMoney(Transfer transfer);
     boolean updateAccount(Account account);
     //Delete
     boolean deleteAccount(int id);
