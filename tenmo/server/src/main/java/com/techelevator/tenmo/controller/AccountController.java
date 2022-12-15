@@ -5,6 +5,7 @@ import com.techelevator.tenmo.dao.JdbcAccountDao;
 import com.techelevator.tenmo.dao.TransferDao;
 import com.techelevator.tenmo.dao.UserDao;
 import com.techelevator.tenmo.model.Account;
+import com.techelevator.tenmo.model.ApprovalResponse;
 import com.techelevator.tenmo.model.Transfer;
 import com.techelevator.tenmo.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -86,13 +87,15 @@ public class AccountController {
         return transferDao.getTransfersWaitingForMyApproval(userId);
     }
 
-    @PostMapping(path = "/myTransfers/approve/{id}")
-    public Transfer resolvePendingTransfer(@PathVariable int id, @RequestBody boolean approve, Principal principal){
+    @PostMapping(path = "/myTransfers/approve")
+    public Transfer resolvePendingTransfer(@RequestBody ApprovalResponse approvalResponse, Principal principal){
+        int id = approvalResponse.getTransferId();
         Transfer transfer = transferDao.getTransferById(id);
-        if(userDao.findIdByUsername(principal.getName()) != transfer.getMoneySenderId()){
+        if(userDao.findIdByUsername(principal.getName()) != transfer.getMoneySenderId()
+                || !transfer.getStatus().equals("Pending")){
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Cannot resolve this transfer");
         }
-        if(approve) {
+        if(approvalResponse.getIsApproved()) {
             int status = accountDao.transferMoney(transfer);
             if (status == JdbcAccountDao.SUCCESS) {
                 transfer.setStatus("Approved");
