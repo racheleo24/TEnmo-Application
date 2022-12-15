@@ -21,8 +21,8 @@ public class JdbcTransferDao implements TransferDao{
     public Transfer createTransfer(Transfer transfer) {
         String sql = "INSERT INTO transfer (initiator_user_id, other_user_id, transfer_amount, status) " +
                 "VALUES (?,?,?,?) RETURNING transfer_id";
-        int id = jdbcTemplate.queryForObject(sql, Integer.class, transfer.getInitiatorId(),
-                transfer.getOtherId(), transfer.getAmount(), transfer.getStatus());
+        int id = jdbcTemplate.queryForObject(sql, Integer.class, transfer.getMoneySenderId(),
+                transfer.getMoneyRecipientId(), transfer.getAmount(), transfer.getStatus());
         return getTransferById(id);
     }
 
@@ -65,10 +65,36 @@ public class JdbcTransferDao implements TransferDao{
     }
 
     @Override
+    public List<Transfer> getAllMyPendingTransfers(int id) {
+        List<Transfer> transfers = new ArrayList<>();
+        String sql = "SELECT transfer_id, initiator_user_id, other_user_id, transfer_amount, status " +
+                "FROM transfer " +
+                "WHERE status = 'Pending' AND (initiator_user_id = ? OR other_user_id = ?)";
+        SqlRowSet results = jdbcTemplate.queryForRowSet(sql,id, id);
+        while(results.next()){
+            transfers.add(mapRowToTransfer(results));
+        }
+        return transfers;
+    }
+
+    @Override
+    public List<Transfer> getTransfersWaitingForMyApproval(int id) {
+        List<Transfer> transfers = new ArrayList<>();
+        String sql = "SELECT transfer_id, initiator_user_id, other_user_id, transfer_amount, status " +
+                "FROM transfer " +
+                "WHERE status = 'Pending' AND initiator_user_id = ?";
+        SqlRowSet results = jdbcTemplate.queryForRowSet(sql,id);
+        while(results.next()){
+            transfers.add(mapRowToTransfer(results));
+        }
+        return transfers;
+    }
+
+    @Override
     public boolean updateTransfer(Transfer transfer) {
         String sql = "UPDATE transfer SET initiator_user_id=?, other_user_id=?, transfer_amount=?, status=? " +
                 "WHERE transfer_id = ?";
-        int rowsUpdated = jdbcTemplate.update(sql, transfer.getInitiatorId(), transfer.getOtherId(),
+        int rowsUpdated = jdbcTemplate.update(sql, transfer.getMoneySenderId(), transfer.getMoneyRecipientId(),
                 transfer.getAmount(), transfer.getStatus(), transfer.getTransferId());
         return rowsUpdated==1;
     }

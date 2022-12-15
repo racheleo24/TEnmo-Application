@@ -5,7 +5,6 @@ import com.techelevator.tenmo.model.Transfer;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -74,11 +73,29 @@ public class JdbcAccountDao implements AccountDao{
     }
 
     @Override
+    public int requestTransferMoney(Transfer transfer){
+        BigDecimal transferAmount = transfer.getAmount();
+        int moneySenderId = transfer.getMoneySenderId();
+        int moneyRecipientId = transfer.getMoneyRecipientId();
+
+        if (transferAmount.compareTo(BigDecimal.ZERO) <= 0) {
+            return JdbcAccountDao.ZERO_AMOUNT;
+        }
+        if (moneySenderId == moneyRecipientId) {
+            return JdbcAccountDao.SAME_ACCOUNT;
+        }
+        if (getAccountByUserId(moneySenderId) == null) {
+            return JdbcAccountDao.MISSING_ACCOUNT;
+        }
+        return JdbcAccountDao.SUCCESS;
+
+    }
+    @Override
     public int transferMoney(Transfer transfer) {
         // pulling out values
         BigDecimal transferAmount = transfer.getAmount();
-        int originId = transfer.getInitiatorId();
-        int destinationId = transfer.getOtherId();
+        int originId = transfer.getMoneySenderId();
+        int destinationId = transfer.getMoneyRecipientId();
         Account originAccount = getAccountByUserId(originId);
         Account destinationAccount = getAccountByUserId(destinationId);
 

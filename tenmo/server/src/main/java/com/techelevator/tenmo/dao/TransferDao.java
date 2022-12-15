@@ -12,6 +12,8 @@ public interface TransferDao {
     Transfer getTransferById(int id);
     List<Transfer> getTransfersByUser(int id);
     List<Transfer> getAllTransfers();
+    List<Transfer> getAllMyPendingTransfers(int id);
+    List<Transfer> getTransfersWaitingForMyApproval(int id);
     //Update
     boolean updateTransfer(Transfer transfer);
     //Delete

@@ -6,9 +6,9 @@ import java.math.BigDecimal;
 
 public class Transfer {
     private int transferId;
-    private int initiatorId;
+    private int moneySenderId;
     @Min (value = 1000, message = "UserId's begin at 1001.")
-    private int otherId;
+    private int moneyRecipientId;
     @Positive (message = "Transfer amount must be larger than 0.")
     private BigDecimal amount;
     private String status;
@@ -18,8 +18,8 @@ public class Transfer {
 
     public Transfer(int transferId, int initiatorId, int otherId, BigDecimal transferAmount, String status) {
         this.transferId = transferId;
-        this.initiatorId = initiatorId;
-        this.otherId = otherId;
+        this.moneySenderId = initiatorId;
+        this.moneyRecipientId = otherId;
         this.amount = transferAmount;
         this.status = status;
     }
@@ -28,8 +28,8 @@ public class Transfer {
     public String toString() {
         return "Transfer{" +
                 "transferId=" + transferId +
-                ", initiatorId=" + initiatorId +
-                ", otherId=" + otherId +
+                ", initiatorId=" + moneySenderId +
+                ", otherId=" + moneyRecipientId +
                 ", transferAmount=" + amount +
                 ", status='" + status + '\'' +
                 '}';
@@ -43,20 +43,20 @@ public class Transfer {
         this.transferId = transferId;
     }
 
-    public int getInitiatorId() {
-        return initiatorId;
+    public int getMoneySenderId() {
+        return moneySenderId;
     }
 
-    public void setInitiatorId(int initiatorId) {
-        this.initiatorId = initiatorId;
+    public void setMoneySenderId(int moneySenderId) {
+        this.moneySenderId = moneySenderId;
     }
 
-    public int getOtherId() {
-        return otherId;
+    public int getMoneyRecipientId() {
+        return moneyRecipientId;
     }
 
-    public void setOtherId(int otherId) {
-        this.otherId = otherId;
+    public void setMoneyRecipientId(int moneyRecipientId) {
+        this.moneyRecipientId = moneyRecipientId;
     }
 
     public BigDecimal getAmount() {

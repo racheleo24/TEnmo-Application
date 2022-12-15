@@ -16,6 +16,7 @@ public interface AccountDao {
     //Update
     int transferMoney(Transfer transfer);
     boolean updateAccount(Account account);
+    int requestTransferMoney(Transfer transfer);
     //Delete
     boolean deleteAccount(int id);
 }

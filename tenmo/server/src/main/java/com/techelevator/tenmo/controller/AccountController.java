@@ -50,15 +50,61 @@ public class AccountController {
     @PostMapping (path = "/transfer")
     public Transfer sendMoney(@Valid @RequestBody Transfer transfer, Principal principal) {
         int senderId = userDao.findIdByUsername(principal.getName());
-        int otherId = transfer.getOtherId();
-        transfer.setInitiatorId(senderId);
-        transfer.setOtherId(otherId);
+        int otherId = transfer.getMoneyRecipientId();
+        transfer.setMoneySenderId(senderId);
         int statusCode = accountDao.transferMoney(transfer);
         if (statusCode == JdbcAccountDao.SUCCESS) {
             transfer.setStatus("Approved");
             return transferDao.createTransfer(transfer);
         } else {
             throw getException(statusCode);
+        }
+    }
+
+    @PostMapping(path = "/request")
+    public Transfer requestTransfer(@RequestBody Transfer transfer, Principal principal){
+        int moneyRecipientId = userDao.findIdByUsername(principal.getName());
+        transfer.setMoneyRecipientId(moneyRecipientId);
+        int moneySenderId = transfer.getMoneySenderId();
+        int statusCode = accountDao.requestTransferMoney(transfer);
+        if(statusCode==JdbcAccountDao.SUCCESS){
+            transfer.setStatus("Pending");
+            return transferDao.createTransfer(transfer);
+        }else {
+            throw getException(statusCode);
+        }
+    }
+    @GetMapping(path = "/myTransfers/pending")
+    public List<Transfer> myPendingTransfers(Principal principal){
+        int userId = userDao.findIdByUsername(principal.getName());
+        return transferDao.getAllMyPendingTransfers(userId);
+    }
+
+    @GetMapping(path = "/myTransfers/approve")
+    public List<Transfer> myTransfersToApprove(Principal principal){
+        int userId = userDao.findIdByUsername(principal.getName());
+        return transferDao.getTransfersWaitingForMyApproval(userId);
+    }
+
+    @PostMapping(path = "/myTransfers/approve/{id}")
+    public Transfer resolvePendingTransfer(@PathVariable int id, @RequestBody boolean approve, Principal principal){
+        Transfer transfer = transferDao.getTransferById(id);
+        if(userDao.findIdByUsername(principal.getName()) != transfer.getMoneySenderId()){
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Cannot resolve this transfer");
+        }
+        if(approve) {
+            int status = accountDao.transferMoney(transfer);
+            if (status == JdbcAccountDao.SUCCESS) {
+                transfer.setStatus("Approved");
+                transferDao.updateTransfer(transfer);
+                return transferDao.getTransferById(id);
+            } else {
+                throw getException(status);
+            }
+        }else{
+            transfer.setStatus("Rejected");
+            transferDao.updateTransfer(transfer);
+            return transferDao.getTransferById(id);
         }
     }
 
@@ -88,15 +134,16 @@ public class AccountController {
                 userMap.put(user.getId(), user.getUsername());
             }
         }
-            return userMap;
-        }
+        return userMap;
+    }
+
 
     public ResponseStatusException getException(int statusCode) {
         if (statusCode == JdbcAccountDao.DATABASE_ERROR) {
             return new ResponseStatusException(HttpStatus.BAD_REQUEST, "Database error.");
         }
         if (statusCode == JdbcAccountDao.MISSING_ACCOUNT) {
-            return new ResponseStatusException(HttpStatus.NOT_FOUND, "Recipient user does not exist.");
+            return new ResponseStatusException(HttpStatus.NOT_FOUND, "Selected user does not exist.");
         }
         if (statusCode == JdbcAccountDao.OVERDRAFT) {
             return new ResponseStatusException(HttpStatus.BAD_REQUEST, "Insufficient funds.");

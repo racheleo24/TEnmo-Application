@@ -60,8 +60,8 @@ public class JdbcTransferDaoTests extends BaseDaoTests{
     public void updateTransfer_updates_transfer(){
         Transfer transferToUpdate = new Transfer();
         transferToUpdate.setTransferId(3001);
-        transferToUpdate.setInitiatorId(1002);
-        transferToUpdate.setOtherId(1003);
+        transferToUpdate.setMoneySenderId(1002);
+        transferToUpdate.setMoneyRecipientId(1003);
         transferToUpdate.setAmount(new BigDecimal("250.00"));
         transferToUpdate.setStatus("Pending");
 
@@ -93,8 +93,8 @@ public class JdbcTransferDaoTests extends BaseDaoTests{
 
     private void assertTransfersMatch(Transfer expectedTransfer, Transfer actualTransfer){
         Assert.assertEquals(expectedTransfer.getTransferId(), actualTransfer.getTransferId());
-        Assert.assertEquals(expectedTransfer.getInitiatorId(), actualTransfer.getInitiatorId());
-        Assert.assertEquals(expectedTransfer.getOtherId(), actualTransfer.getOtherId());
+        Assert.assertEquals(expectedTransfer.getMoneySenderId(), actualTransfer.getMoneySenderId());
+        Assert.assertEquals(expectedTransfer.getMoneyRecipientId(), actualTransfer.getMoneyRecipientId());
         Assert.assertEquals(expectedTransfer.getAmount(), actualTransfer.getAmount());
         Assert.assertEquals(expectedTransfer.getStatus(), actualTransfer.getStatus());
     }
