@@ -26,24 +26,26 @@ public class AccountController {
     @Autowired
     private TransferDao transferDao;
 
+    /*
     @GetMapping (path = "/myaccount")
     public Account seeMyAccount(Principal principal){
         int id = userDao.findIdByUsername(principal.getName());
         Account account = accountDao.getAccountByUserId(id);
         return account;
     }
+    */
 
-    @GetMapping (path = "/myaccount/balance")
+    @GetMapping (path = "/balance")
     public BigDecimal seeMyBalance(Principal principal){
         int id = userDao.findIdByUsername(principal.getName());
         Account account = accountDao.getAccountByUserId(id);
         return account.getBalance();
     }
 
-    @PostMapping (path = "/myaccount/transfer/{username}")
-    public Transfer sendMoney(@PathVariable String username, @RequestBody Transfer transfer, Principal principal) {
+    @PostMapping (path = "/transfer")
+    public Transfer sendMoney(@RequestBody Transfer transfer, Principal principal) {
         int senderId = userDao.findIdByUsername(principal.getName());
-        int otherId = userDao.findIdByUsername(username);
+        int otherId = transfer.getOtherId();
         transfer.setInitiatorId(senderId);
         transfer.setOtherId(otherId);
         if (accountDao.transferMoney(transfer)) {
@@ -54,7 +56,7 @@ public class AccountController {
         }
     }
 
-    @GetMapping (path = "/myaccount/transfers")
+    @GetMapping (path = "/myTransfers")
     public List<Transfer> myTransfers(Principal principal) {
         int userId = userDao.findIdByUsername(principal.getName());
         return transferDao.getTransfersByUser(userId);
