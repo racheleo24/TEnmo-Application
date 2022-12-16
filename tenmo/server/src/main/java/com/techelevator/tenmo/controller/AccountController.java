@@ -118,10 +118,13 @@ public class AccountController {
     }
 
     @GetMapping (path = "/transfer/{id}")
-    public Transfer getTransfer(@PathVariable int id) {
+    public Transfer getTransfer(@PathVariable int id, Principal principal) {
         Transfer transfer = transferDao.getTransferById(id);
+        int userId = userDao.findIdByUsername(principal.getName());
         if (transfer == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }else if(transfer.getMoneySenderId() != userId && transfer.getMoneyRecipientId() != userId ){
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
         else {
             return transfer;

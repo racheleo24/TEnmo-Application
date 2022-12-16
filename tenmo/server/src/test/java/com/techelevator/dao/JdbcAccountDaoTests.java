@@ -3,6 +3,7 @@ package com.techelevator.dao;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.techelevator.tenmo.dao.JdbcAccountDao;
 import com.techelevator.tenmo.model.Account;
+import com.techelevator.tenmo.model.Transfer;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -89,6 +90,70 @@ public class JdbcAccountDaoTests extends BaseDaoTests{
 
         sut.deleteAccount(2002);
         Assert.assertNull(sut.getAccountByAccountId(2002));
+    }
+
+    @Test
+    public void transferMoney_updates_both_account_balances(){
+        Transfer transfer = new Transfer(3001, 1001, 1002, new BigDecimal("100.00"), "Approved");
+        int statusCode = sut.transferMoney(transfer);
+        Assert.assertEquals(JdbcAccountDao.SUCCESS, statusCode);
+        Account account = sut.getAccountByUserId(1001);
+        Assert.assertEquals(new BigDecimal("900.00"), account.getBalance());
+        account = sut.getAccountByUserId(1002);
+        Assert.assertEquals(new BigDecimal("1100.00"), account.getBalance());
+    }
+
+    @Test
+    public void transferMoney_send_all_updates_both_account_balances(){
+        Transfer transfer = new Transfer(3001, 1001, 1002, new BigDecimal("1000.00"), "Approved");
+        int statusCode = sut.transferMoney(transfer);
+        Assert.assertEquals(JdbcAccountDao.SUCCESS, statusCode);
+        Account account = sut.getAccountByUserId(1001);
+        Assert.assertEquals(new BigDecimal("0.00"), account.getBalance());
+        account = sut.getAccountByUserId(1002);
+        Assert.assertEquals(new BigDecimal("2000.00"), account.getBalance());
+    }
+
+    @Test
+    public void transferMoney_same_account_does_not_update_balance_throws_error_code(){
+        Transfer transfer = new Transfer(3001, 1001, 1001, new BigDecimal("100.00"), "Approved");
+        int statusCode = sut.transferMoney(transfer);
+        Assert.assertEquals(JdbcAccountDao.SAME_ACCOUNT, statusCode);
+        Account account = sut.getAccountByUserId(1001);
+        Assert.assertEquals(new BigDecimal("1000.00"), account.getBalance());
+    }
+
+    @Test
+    public void transferMoney_overdraft_does_not_update_both_account_balances_throws_error_code(){
+        Transfer transfer = new Transfer(3001, 1001, 1002, new BigDecimal("1000.01"), "Approved");
+        int statusCode = sut.transferMoney(transfer);
+        Assert.assertEquals(JdbcAccountDao.OVERDRAFT, statusCode);
+        Account account = sut.getAccountByUserId(1001);
+        Assert.assertEquals(new BigDecimal("1000.00"), account.getBalance());
+        account = sut.getAccountByUserId(1002);
+        Assert.assertEquals(new BigDecimal("1000.00"), account.getBalance());
+    }
+
+    @Test
+    public void transferMoney_send_zero_does_not_update_both_account_balances_throws_error_code(){
+        Transfer transfer = new Transfer(3001, 1001, 1002, new BigDecimal("0.00"), "Approved");
+        int statusCode = sut.transferMoney(transfer);
+        Assert.assertEquals(JdbcAccountDao.ZERO_AMOUNT, statusCode);
+        Account account = sut.getAccountByUserId(1001);
+        Assert.assertEquals(new BigDecimal("1000.00"), account.getBalance());
+        account = sut.getAccountByUserId(1002);
+        Assert.assertEquals(new BigDecimal("1000.00"), account.getBalance());
+    }
+
+    @Test
+    public void transferMoney_account_not_found_does_not_update_account_balance_throws_error_code(){
+        Transfer transfer = new Transfer(3001, 1001, 1010, new BigDecimal("100.00"), "Approved");
+        int statusCode = sut.transferMoney(transfer);
+        Assert.assertEquals(JdbcAccountDao.MISSING_ACCOUNT, statusCode);
+        Account account = sut.getAccountByUserId(1001);
+        Assert.assertEquals(new BigDecimal("1000.00"), account.getBalance());
+        account = sut.getAccountByUserId(1010);
+        Assert.assertNull(account);
     }
 
     private void assertAccountsMatch(Account expected, Account actual){
