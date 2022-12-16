@@ -15,7 +15,9 @@ import javax.validation.Valid;
 import java.math.BigDecimal;
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @PreAuthorize("isAuthenticated()")
@@ -139,6 +141,16 @@ public class AccountController {
         return userDTOList;
     }
 
+    @GetMapping (path = "/users/all")
+    public Map<Integer, String> getAllUsersMap() {
+        List<User> allUsers = userDao.findAll();
+        Map<Integer, String> allUsersMap = new HashMap<>();
+        for (User user : allUsers) {
+            allUsersMap.put(user.getId(), user.getUsername());
+        }
+        return allUsersMap;
+    }
+
 
     public ResponseStatusException getException(int statusCode) {
         if (statusCode == JdbcAccountDao.DATABASE_ERROR) {
@@ -158,4 +170,6 @@ public class AccountController {
         }
         return new ResponseStatusException(HttpStatus.I_AM_A_TEAPOT, "This should never happen.");
     }
+
+
 }

@@ -8,6 +8,8 @@ import com.techelevator.tenmo.services.AuthenticationService;
 import com.techelevator.tenmo.services.ConsoleService;
 
 import java.math.BigDecimal;
+import java.util.List;
+import java.util.Map;
 
 public class App {
 
@@ -98,16 +100,26 @@ public class App {
 
 	private void viewTransferHistory() {
 		// TODO Auto-generated method stub
-        consoleService.listTransfers(accountService.listTransferHistory());
+        Transfer[] transfers = accountService.listTransferHistory();
+        if(transfers.length == 0){
+            consoleService.printMessage("\nNo transfers to display.\n");
+        }else {
+            consoleService.listTransfers(transfers);
+        }
 	}
 
 	private void viewPendingRequests() {
 		// TODO Auto-generated method stub
-		consoleService.listTransfers(accountService.listPendingTransfers());
-        int id = consoleService.promptForInt("Enter the transaction ID you'd like to resolve: ");
-        boolean approve = 1 == consoleService.promptForInt("Enter 1 to approve, 0 to decline: ");
-        Transfer transfer = accountService.resolvePendingTransfer(id, approve);
-        System.out.println(transfer);
+        Transfer[] transfers = accountService.listPendingTransfers();
+        if(transfers.length == 0){
+            consoleService.printMessage("\nNo pending transfers to display.\n");
+        } else {
+            consoleService.listTransfers(transfers);
+            int id = consoleService.promptForInt("Enter the transaction ID you'd like to resolve: ");
+            boolean approve = 1 == consoleService.promptForInt("Enter 1 to approve, 0 to decline: ");
+            Transfer transfer = accountService.resolvePendingTransfer(id, approve);
+            System.out.println(transfer);
+        }
 	}
 
 	private void sendBucks() {

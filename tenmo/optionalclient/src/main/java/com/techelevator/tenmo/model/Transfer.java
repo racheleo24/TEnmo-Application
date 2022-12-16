@@ -1,6 +1,7 @@
 package com.techelevator.tenmo.model;
 
 import java.math.BigDecimal;
+import java.util.Map;
 
 public class Transfer {
     private int transferId;
@@ -12,6 +13,7 @@ public class Transfer {
     public Transfer() {
     }
 
+
     public Transfer(int transferId, int initiatorId, int otherId, BigDecimal transferAmount, String status) {
         this.transferId = transferId;
         this.moneySenderId = initiatorId;
@@ -22,14 +24,9 @@ public class Transfer {
 
     @Override
     public String toString() {
-        return "Transfer:" +
-                "transferId=" + transferId +
-                ", initiatorId=" + moneySenderId +
-                ", otherId=" + moneyRecipientId +
-                ", transferAmount=" + amount +
-                ", status='" + status + '\'' +
-                '}';
+        return transferId + ": $" + amount  + " sent by: " + moneySenderId + " to: " + moneyRecipientId + " (" + status +")";
     }
+
 
     public int getTransferId() {
         return transferId;

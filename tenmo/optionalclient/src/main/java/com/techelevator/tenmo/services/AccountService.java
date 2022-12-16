@@ -9,7 +9,9 @@ import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class AccountService {
 
@@ -119,6 +121,18 @@ public class AccountService {
         }
         return users.getBody();
     }
+
+//    public Map<Integer, String> getUsername(int id){
+//        ResponseEntity<String> username = null;
+//        try{
+//            username = restTemplate.exchange(API_BASE_URL+"user", HttpMethod.GET, makeAuthEntity(), Map.String);
+//        } catch (RestClientResponseException e) {
+//            BasicLogger.log(e.getRawStatusCode() + " : " + e.getStatusText());
+//        } catch (ResourceAccessException e) {
+//            BasicLogger.log(e.getMessage());
+//        }
+//        return username.getBody();
+//    }
 
     private HttpEntity<Account> makeAccountEntity(Account account) {
         HttpHeaders headers = new HttpHeaders();
