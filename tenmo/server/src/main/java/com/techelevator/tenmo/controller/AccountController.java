@@ -4,10 +4,7 @@ import com.techelevator.tenmo.dao.AccountDao;
 import com.techelevator.tenmo.dao.JdbcAccountDao;
 import com.techelevator.tenmo.dao.TransferDao;
 import com.techelevator.tenmo.dao.UserDao;
-import com.techelevator.tenmo.model.Account;
-import com.techelevator.tenmo.model.ApprovalResponse;
-import com.techelevator.tenmo.model.Transfer;
-import com.techelevator.tenmo.model.User;
+import com.techelevator.tenmo.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -17,9 +14,8 @@ import org.springframework.web.server.ResponseStatusException;
 import javax.validation.Valid;
 import java.math.BigDecimal;
 import java.security.Principal;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @PreAuthorize("isAuthenticated()")
@@ -88,7 +84,7 @@ public class AccountController {
     }
 
     @PostMapping(path = "/myTransfers/approve")
-    public Transfer resolvePendingTransfer(@RequestBody ApprovalResponse approvalResponse, Principal principal){
+    public Transfer resolvePendingTransfer(@RequestBody ApprovalDTO approvalResponse, Principal principal){
         int id = approvalResponse.getTransferId();
         Transfer transfer = transferDao.getTransferById(id);
         if(userDao.findIdByUsername(principal.getName()) != transfer.getMoneySenderId()
@@ -132,15 +128,15 @@ public class AccountController {
     }
 
     @GetMapping (path = "/users")
-    public Map<Integer, String> getAllUsers(Principal principal) {
+    public List<UserDTO> getAllUsers(Principal principal) {
         List<User> allUsers = userDao.findAll();
-        Map<Integer, String> userMap = new HashMap<>();
+        List<UserDTO> userDTOList = new ArrayList<>();
         for (User user : allUsers) {
             if (!principal.getName().equals(user.getUsername())) {
-                userMap.put(user.getId(), user.getUsername());
+                userDTOList.add(new UserDTO(user.getId(), user.getUsername()));
             }
         }
-        return userMap;
+        return userDTOList;
     }
 
 

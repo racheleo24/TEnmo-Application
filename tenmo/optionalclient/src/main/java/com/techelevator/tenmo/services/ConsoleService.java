@@ -1,6 +1,8 @@
 package com.techelevator.tenmo.services;
 
 
+import com.techelevator.tenmo.model.Transfer;
+import com.techelevator.tenmo.model.User;
 import com.techelevator.tenmo.model.UserCredentials;
 
 import java.math.BigDecimal;
@@ -76,6 +78,18 @@ public class ConsoleService {
             } catch (NumberFormatException e) {
                 System.out.println("Please enter a decimal number.");
             }
+        }
+    }
+
+    public void listTransfers(Transfer[] transfers) {
+        for (Transfer transfer: transfers) {
+            System.out.println(transfer);
+        }
+    }
+
+    public void listUsers(User[] users) {
+        for (User user: users) {
+            System.out.println(user);
         }
     }
 

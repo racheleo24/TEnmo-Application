@@ -1,10 +1,13 @@
 package com.techelevator.tenmo;
 
 import com.techelevator.tenmo.model.AuthenticatedUser;
+import com.techelevator.tenmo.model.Transfer;
 import com.techelevator.tenmo.model.UserCredentials;
 import com.techelevator.tenmo.services.AccountService;
 import com.techelevator.tenmo.services.AuthenticationService;
 import com.techelevator.tenmo.services.ConsoleService;
+
+import java.math.BigDecimal;
 
 public class App {
 
@@ -95,22 +98,37 @@ public class App {
 
 	private void viewTransferHistory() {
 		// TODO Auto-generated method stub
-		
+        consoleService.listTransfers(accountService.listTransferHistory());
 	}
 
 	private void viewPendingRequests() {
 		// TODO Auto-generated method stub
-		
+		consoleService.listTransfers(accountService.listPendingTransfers());
+        int id = consoleService.promptForInt("Enter the transaction ID you'd like to resolve: ");
+        boolean approve = 1 == consoleService.promptForInt("Enter 1 to approve, 0 to decline: ");
+        Transfer transfer = accountService.resolvePendingTransfer(id, approve);
+        System.out.println(transfer);
 	}
 
 	private void sendBucks() {
 		// TODO Auto-generated method stub
-		
+		// First display users
+        consoleService.listUsers(accountService.listOtherUsers());
+        // Prompt for info
+        int id = consoleService.promptForInt("Enter the user ID you'd like to send money to: ");
+        BigDecimal amount = consoleService.promptForBigDecimal("Enter the amount you'd like to send: ");
+        // Process transfer
+        Transfer transfer = accountService.sendMoney(id, amount);
+        System.out.println(transfer);
 	}
 
 	private void requestBucks() {
 		// TODO Auto-generated method stub
-		
+        consoleService.listUsers(accountService.listOtherUsers());
+        int id = consoleService.promptForInt("Enter user ID you'd like to request money from: ");
+        BigDecimal amount = consoleService.promptForBigDecimal("Enter the amount you'd like to request: ");
+        Transfer transfer = accountService.requestMoney(id, amount);
+        System.out.println(transfer);
 	}
 
 }

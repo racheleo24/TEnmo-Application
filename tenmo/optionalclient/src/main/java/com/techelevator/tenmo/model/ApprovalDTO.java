@@ -1,15 +1,15 @@
 package com.techelevator.tenmo.model;
 
-public class ApprovalResponse {
+public class ApprovalDTO {
     private int transferId;
     private boolean isApproved;
 
-    public ApprovalResponse(int transferId, boolean isApproved) {
-        this.transferId = transferId;
+    public ApprovalDTO(int id, boolean isApproved) {
+        this.transferId = id;
         this.isApproved = isApproved;
     }
 
-    public ApprovalResponse() {
+    public ApprovalDTO() {
     }
 
     public int getTransferId() {
@@ -30,8 +30,8 @@ public class ApprovalResponse {
 
     @Override
     public String toString() {
-        return "ApprovalResponse{" +
-                "transferId=" + transferId +
+        return "ApprovalDTO{" +
+                "id=" + transferId +
                 ", isApproved=" + isApproved +
                 '}';
     }

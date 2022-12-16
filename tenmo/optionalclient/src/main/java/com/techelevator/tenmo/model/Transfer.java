@@ -22,7 +22,7 @@ public class Transfer {
 
     @Override
     public String toString() {
-        return "Transfer{" +
+        return "Transfer:" +
                 "transferId=" + transferId +
                 ", initiatorId=" + moneySenderId +
                 ", otherId=" + moneyRecipientId +
