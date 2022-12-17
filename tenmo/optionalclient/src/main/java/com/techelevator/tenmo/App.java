@@ -2,13 +2,15 @@ package com.techelevator.tenmo;
 
 import com.techelevator.tenmo.model.AuthenticatedUser;
 import com.techelevator.tenmo.model.Transfer;
+import com.techelevator.tenmo.model.User;
 import com.techelevator.tenmo.model.UserCredentials;
-import com.techelevator.tenmo.services.AccountService;
+import com.techelevator.tenmo.services.TenmoService;
 import com.techelevator.tenmo.services.AuthenticationService;
 import com.techelevator.tenmo.services.ConsoleService;
+import com.techelevator.util.BasicLogger;
 
 import java.math.BigDecimal;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 
 public class App {
@@ -17,8 +19,8 @@ public class App {
 
     private final ConsoleService consoleService = new ConsoleService();
     private final AuthenticationService authenticationService = new AuthenticationService(API_BASE_URL);
-    private AccountService accountService;
-
+    private TenmoService accountService;
+    public static Map<Long, String> allUsers;
     private AuthenticatedUser currentUser;
 
     public static void main(String[] args) {
@@ -33,6 +35,7 @@ public class App {
             mainMenu();
         }
     }
+
     private void loginMenu() {
         int menuSelection = -1;
         while (menuSelection != 0 && currentUser == null) {
@@ -62,7 +65,8 @@ public class App {
     private void handleLogin() {
         UserCredentials credentials = consoleService.promptForCredentials();
         currentUser = authenticationService.login(credentials);
-        accountService =new AccountService(currentUser);
+        accountService =new TenmoService(currentUser);
+        allUsers = arrayToMap(accountService.listAllUsers());
         if (currentUser == null) {
             consoleService.printErrorMessage();
         }
@@ -117,8 +121,13 @@ public class App {
             consoleService.listTransfers(transfers);
             int id = consoleService.promptForInt("Enter the transaction ID you'd like to resolve: ");
             boolean approve = 1 == consoleService.promptForInt("Enter 1 to approve, 0 to decline: ");
-            Transfer transfer = accountService.resolvePendingTransfer(id, approve);
-            System.out.println(transfer);
+            try{
+                Transfer transfer = accountService.resolvePendingTransfer(id, approve);
+                System.out.println(transfer);
+            } catch (Exception e) {
+                BasicLogger.log(e.getMessage());
+                consoleService.printErrorMessage();
+            }
         }
 	}
 
@@ -130,8 +139,13 @@ public class App {
         int id = consoleService.promptForInt("Enter the user ID you'd like to send money to: ");
         BigDecimal amount = consoleService.promptForBigDecimal("Enter the amount you'd like to send: ");
         // Process transfer
-        Transfer transfer = accountService.sendMoney(id, amount);
-        System.out.println(transfer);
+        try {
+            Transfer transfer = accountService.sendMoney(id, amount);
+            System.out.println(transfer);
+        } catch (Exception e) {
+            BasicLogger.log(e.getMessage());
+            consoleService.printErrorMessage();
+        }
 	}
 
 	private void requestBucks() {
@@ -139,8 +153,21 @@ public class App {
         consoleService.listUsers(accountService.listOtherUsers());
         int id = consoleService.promptForInt("Enter user ID you'd like to request money from: ");
         BigDecimal amount = consoleService.promptForBigDecimal("Enter the amount you'd like to request: ");
-        Transfer transfer = accountService.requestMoney(id, amount);
-        System.out.println(transfer);
+        try {
+            Transfer transfer = accountService.requestMoney(id, amount);
+            System.out.println(transfer);
+        } catch (Exception e) {
+            BasicLogger.log(e.getMessage());
+            consoleService.printErrorMessage();
+        }
 	}
+
+    private Map <Long, String> arrayToMap (User[] users) {
+        Map<Long, String> mapUsers = new HashMap<>();
+        for (User user: users){
+            mapUsers.put(user.getId(), user.getUsername());
+        }
+        return mapUsers;
+    }
 
 }

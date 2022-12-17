@@ -1,5 +1,7 @@
 package com.techelevator.tenmo.model;
 
+import com.techelevator.tenmo.App;
+
 import java.math.BigDecimal;
 import java.util.Map;
 
@@ -24,7 +26,9 @@ public class Transfer {
 
     @Override
     public String toString() {
-        return transferId + ": $" + amount  + " sent by: " + moneySenderId + " to: " + moneyRecipientId + " (" + status +")";
+        Long senderLong = Long.valueOf(moneySenderId);
+        Long recipientLong = Long.valueOf(moneyRecipientId);
+        return transferId + ": $" + amount  + " sent by: " + App.allUsers.get(senderLong)  + " to: " + App.allUsers.get(recipientLong) + " (" + status +")";
     }
 
 

@@ -15,13 +15,11 @@ import javax.validation.Valid;
 import java.math.BigDecimal;
 import java.security.Principal;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @PreAuthorize("isAuthenticated()")
-public class AccountController {
+public class TenmoController {
 
     @Autowired
     private AccountDao accountDao;
@@ -142,13 +140,13 @@ public class AccountController {
     }
 
     @GetMapping (path = "/users/all")
-    public Map<Integer, String> getAllUsersMap() {
+    public List<UserDTO> getAllUsersMap() {
         List<User> allUsers = userDao.findAll();
-        Map<Integer, String> allUsersMap = new HashMap<>();
+        List<UserDTO> userDTOList = new ArrayList<>();
         for (User user : allUsers) {
-            allUsersMap.put(user.getId(), user.getUsername());
-        }
-        return allUsersMap;
+            userDTOList.add(new UserDTO(user.getId(), user.getUsername()));
+            }
+        return userDTOList;
     }
 
 

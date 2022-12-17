@@ -99,14 +99,6 @@ public class JdbcTransferDao implements TransferDao{
         return rowsUpdated==1;
     }
 
-    @Override
-    public boolean deleteTransfer(int id) {
-        String sql = "DELETE FROM transfer " +
-                "WHERE transfer_id = ?";
-        int rowsDeleted = jdbcTemplate.update(sql, id);
-        return rowsDeleted==1;
-    }
-
     private Transfer mapRowToTransfer(SqlRowSet results){
         int id= results.getInt("transfer_id");
         int user1= results.getInt("initiator_user_id");
@@ -115,4 +107,17 @@ public class JdbcTransferDao implements TransferDao{
         String status = results.getString("status");
         return new Transfer(id,user1,user2,transferAmount,status);
     }
+
+    /*
+    Methods not used:
+
+    @Override
+    public boolean deleteTransfer(int id) {
+        String sql = "DELETE FROM transfer " +
+                "WHERE transfer_id = ?";
+        int rowsDeleted = jdbcTemplate.update(sql, id);
+        return rowsDeleted==1;
+    }
+
+     */
 }

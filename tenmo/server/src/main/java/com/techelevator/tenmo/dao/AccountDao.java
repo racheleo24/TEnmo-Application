@@ -6,17 +6,18 @@ import com.techelevator.tenmo.model.Transfer;
 import java.util.List;
 
 public interface AccountDao {
-    //CRUD
-    //Create
+
     Account createAccount(Account account);
-    //Read
+    int transferMoney(Transfer transfer);
+    int requestTransferMoney(Transfer transfer);
     Account getAccountByAccountId(int id);
     Account getAccountByUserId(int id);
     List<Account> getAllAccounts();
-    //Update
-    int transferMoney(Transfer transfer);
     boolean updateAccount(Account account);
-    int requestTransferMoney(Transfer transfer);
-    //Delete
+
+   /*
+    Methods not used:
+
     boolean deleteAccount(int id);
+     */
 }

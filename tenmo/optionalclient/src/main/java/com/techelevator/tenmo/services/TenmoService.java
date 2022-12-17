@@ -2,24 +2,20 @@ package com.techelevator.tenmo.services;
 
 import com.techelevator.tenmo.model.*;
 import com.techelevator.util.BasicLogger;
-import org.apiguardian.api.API;
 import org.springframework.http.*;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
-public class AccountService {
+public class TenmoService {
 
     public static String API_BASE_URL = "http://localhost:8080/";
     private RestTemplate restTemplate = new RestTemplate();
     private AuthenticatedUser user;
 
-    public AccountService(AuthenticatedUser user) {
+    public TenmoService(AuthenticatedUser user) {
         this.user = user;
     }
 
@@ -122,17 +118,19 @@ public class AccountService {
         return users.getBody();
     }
 
-//    public Map<Integer, String> getUsername(int id){
-//        ResponseEntity<String> username = null;
-//        try{
-//            username = restTemplate.exchange(API_BASE_URL+"user", HttpMethod.GET, makeAuthEntity(), Map.String);
-//        } catch (RestClientResponseException e) {
-//            BasicLogger.log(e.getRawStatusCode() + " : " + e.getStatusText());
-//        } catch (ResourceAccessException e) {
-//            BasicLogger.log(e.getMessage());
-//        }
-//        return username.getBody();
-//    }
+    public User[] listAllUsers() {
+        ResponseEntity<User[]> users = null;
+        try {
+            users = restTemplate.exchange(API_BASE_URL + "users/all", HttpMethod.GET,
+                    makeAuthEntity(), User[].class);
+        } catch (RestClientResponseException e) {
+            BasicLogger.log(e.getRawStatusCode() + " : " + e.getStatusText());
+        } catch (ResourceAccessException e) {
+            BasicLogger.log(e.getMessage());
+        }
+        return users.getBody();
+    }
+
 
     private HttpEntity<Account> makeAccountEntity(Account account) {
         HttpHeaders headers = new HttpHeaders();

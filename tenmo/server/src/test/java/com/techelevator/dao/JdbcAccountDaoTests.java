@@ -84,34 +84,34 @@ public class JdbcAccountDaoTests extends BaseDaoTests{
     }
 
     @Test
-    public void deleteAccount_cannot_be_retrieved(){
-        sut.deleteAccount(2001);
-        Assert.assertNull(sut.getAccountByAccountId(2001));
-
-        sut.deleteAccount(2002);
-        Assert.assertNull(sut.getAccountByAccountId(2002));
-    }
-
-    @Test
     public void transferMoney_updates_both_account_balances(){
         Transfer transfer = new Transfer(3001, 1001, 1002, new BigDecimal("100.00"), "Approved");
         int statusCode = sut.transferMoney(transfer);
         Assert.assertEquals(JdbcAccountDao.SUCCESS, statusCode);
-        Account account = sut.getAccountByUserId(1001);
-        Assert.assertEquals(new BigDecimal("900.00"), account.getBalance());
-        account = sut.getAccountByUserId(1002);
-        Assert.assertEquals(new BigDecimal("1100.00"), account.getBalance());
+        Account accountOne = sut.getAccountByUserId(1001);
+        Assert.assertEquals(new BigDecimal("900.00"), accountOne.getBalance());
+        Account accountTwo = sut.getAccountByUserId(1002);
+        Assert.assertEquals(new BigDecimal("1100.00"), accountTwo.getBalance());
+
+        //Because transferMoney uses transaction, transfer needs reversed inside test to properly reset database
+        transfer = new Transfer(3001, 1002, 1001, new BigDecimal("100.00"), "Approved");
+        sut.transferMoney(transfer);
     }
 
     @Test
     public void transferMoney_send_all_updates_both_account_balances(){
         Transfer transfer = new Transfer(3001, 1001, 1002, new BigDecimal("1000.00"), "Approved");
+        Account temp = sut.getAccountByUserId(1001);
         int statusCode = sut.transferMoney(transfer);
         Assert.assertEquals(JdbcAccountDao.SUCCESS, statusCode);
-        Account account = sut.getAccountByUserId(1001);
-        Assert.assertEquals(new BigDecimal("0.00"), account.getBalance());
-        account = sut.getAccountByUserId(1002);
-        Assert.assertEquals(new BigDecimal("2000.00"), account.getBalance());
+        Account accountOne = sut.getAccountByUserId(1001);
+        Assert.assertEquals(new BigDecimal("0.00"), accountOne.getBalance());
+        Account accountTwo = sut.getAccountByUserId(1002);
+        Assert.assertEquals(new BigDecimal("2000.00"), accountTwo.getBalance());
+
+        //Because transferMoney uses transaction, transfer needs reversed inside test to properly reset database
+        transfer = new Transfer(3001, 1002, 1001, new BigDecimal("1000.00"), "Approved");
+        sut.transferMoney(transfer);
     }
 
     @Test
@@ -128,10 +128,10 @@ public class JdbcAccountDaoTests extends BaseDaoTests{
         Transfer transfer = new Transfer(3001, 1001, 1002, new BigDecimal("1000.01"), "Approved");
         int statusCode = sut.transferMoney(transfer);
         Assert.assertEquals(JdbcAccountDao.OVERDRAFT, statusCode);
-        Account account = sut.getAccountByUserId(1001);
-        Assert.assertEquals(new BigDecimal("1000.00"), account.getBalance());
-        account = sut.getAccountByUserId(1002);
-        Assert.assertEquals(new BigDecimal("1000.00"), account.getBalance());
+        Account accountOne = sut.getAccountByUserId(1001);
+        Assert.assertEquals(new BigDecimal("1000.00"), accountOne.getBalance());
+        Account accountTwo = sut.getAccountByUserId(1002);
+        Assert.assertEquals(new BigDecimal("1000.00"), accountTwo.getBalance());
     }
 
     @Test
@@ -139,10 +139,10 @@ public class JdbcAccountDaoTests extends BaseDaoTests{
         Transfer transfer = new Transfer(3001, 1001, 1002, new BigDecimal("0.00"), "Approved");
         int statusCode = sut.transferMoney(transfer);
         Assert.assertEquals(JdbcAccountDao.ZERO_AMOUNT, statusCode);
-        Account account = sut.getAccountByUserId(1001);
-        Assert.assertEquals(new BigDecimal("1000.00"), account.getBalance());
-        account = sut.getAccountByUserId(1002);
-        Assert.assertEquals(new BigDecimal("1000.00"), account.getBalance());
+        Account accountOne = sut.getAccountByUserId(1001);
+        Assert.assertEquals(new BigDecimal("1000.00"), accountOne.getBalance());
+        Account accountTwo = sut.getAccountByUserId(1002);
+        Assert.assertEquals(new BigDecimal("1000.00"), accountTwo.getBalance());
     }
 
     @Test
@@ -150,10 +150,10 @@ public class JdbcAccountDaoTests extends BaseDaoTests{
         Transfer transfer = new Transfer(3001, 1001, 1010, new BigDecimal("100.00"), "Approved");
         int statusCode = sut.transferMoney(transfer);
         Assert.assertEquals(JdbcAccountDao.MISSING_ACCOUNT, statusCode);
-        Account account = sut.getAccountByUserId(1001);
-        Assert.assertEquals(new BigDecimal("1000.00"), account.getBalance());
-        account = sut.getAccountByUserId(1010);
-        Assert.assertNull(account);
+        Account accountOne = sut.getAccountByUserId(1001);
+        Assert.assertEquals(new BigDecimal("1000.00"), accountOne.getBalance());
+        Account accountTwo = sut.getAccountByUserId(1010);
+        Assert.assertNull(accountTwo);
     }
 
     private void assertAccountsMatch(Account expected, Account actual){

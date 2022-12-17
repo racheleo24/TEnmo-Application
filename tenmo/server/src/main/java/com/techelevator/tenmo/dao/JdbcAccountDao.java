@@ -64,7 +64,8 @@ public class JdbcAccountDao implements AccountDao{
     public List<Account> getAllAccounts() {
         List<Account> accounts = new ArrayList<>();
         String sql = "SELECT account_id, user_id, balance " +
-                     "FROM account";
+                     "FROM account " +
+                     "ORDER BY account_id ";
         SqlRowSet results = jdbcTemplate.queryForRowSet(sql);
         while(results.next()){
             accounts.add(mapRowToAccount(results));
@@ -139,6 +140,16 @@ public class JdbcAccountDao implements AccountDao{
         return rowsUpdated == 1;
     }
 
+
+    private Account mapRowToAccount(SqlRowSet results){
+        int accountId = results.getInt("account_id");
+        int userId = results.getInt("user_id");
+        BigDecimal balance = results.getBigDecimal("balance");
+        return new Account(accountId,userId,balance);
+    }
+
+    /*
+    Methods not used:
     @Override
     public boolean deleteAccount(int id) {
         String sql = "DELETE FROM account " +
@@ -147,10 +158,5 @@ public class JdbcAccountDao implements AccountDao{
         return rowsDeleted == 1;
     }
 
-    private Account mapRowToAccount(SqlRowSet results){
-        int accountId = results.getInt("account_id");
-        int userId = results.getInt("user_id");
-        BigDecimal balance = results.getBigDecimal("balance");
-        return new Account(accountId,userId,balance);
-    }
+     */
 }

@@ -49,8 +49,6 @@ CREATE TABLE transfer(
 	CONSTRAINT FK_transfer_other_tenmo_user FOREIGN KEY(other_user_id) REFERENCES tenmo_user (user_id)
  );
 
-
-
 INSERT INTO tenmo_user (username, password_hash)
 VALUES ('bob', '$2a$10$G/MIQ7pUYupiVi72DxqHquxl73zfd7ZLNBoB2G6zUb.W16imI2.W2'),
        ('user', '$2a$10$Ud8gSvRS4G1MijNgxXWzcexeXlVs4kWDOkjE7JFIkNLKEuE57JAEy'),

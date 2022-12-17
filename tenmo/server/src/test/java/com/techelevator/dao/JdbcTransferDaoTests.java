@@ -70,12 +70,6 @@ public class JdbcTransferDaoTests extends BaseDaoTests{
     }
 
     @Test
-    public void deleteTransfer_cannot_retrieve(){
-        sut.deleteTransfer(3001);
-        Assert.assertNull(sut.getTransferById(3001));
-    }
-
-    @Test
     public void createTransfer_returns_transfer_with_id_and_expected_values(){
         Transfer createdTransfer = sut.createTransfer(testTransfer);
         int createdId= createdTransfer.getTransferId();
