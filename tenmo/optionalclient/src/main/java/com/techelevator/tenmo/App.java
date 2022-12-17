@@ -98,8 +98,8 @@ public class App {
 
 	private void viewCurrentBalance() {
 		// TODO Auto-generated method stub
-        System.out.print("Current balance is: $");
-        System.out.println(accountService.viewCurrentBalance());
+        String balance = "Current balance is: $" + accountService.viewCurrentBalance();
+        consoleService.printMessage(balance);
 	}
 
 	private void viewTransferHistory() {
@@ -123,7 +123,7 @@ public class App {
             boolean approve = 1 == consoleService.promptForInt("Enter 1 to approve, 0 to decline: ");
             try{
                 Transfer transfer = accountService.resolvePendingTransfer(id, approve);
-                System.out.println(transfer);
+                consoleService.printTransfer(transfer);
             } catch (Exception e) {
                 BasicLogger.log(e.getMessage());
                 consoleService.printErrorMessage();
@@ -141,7 +141,8 @@ public class App {
         // Process transfer
         try {
             Transfer transfer = accountService.sendMoney(id, amount);
-            System.out.println(transfer);
+            consoleService.printMessage("\nTransfer completed: ");
+            consoleService.printTransfer(transfer);
         } catch (Exception e) {
             BasicLogger.log(e.getMessage());
             consoleService.printErrorMessage();
@@ -155,7 +156,8 @@ public class App {
         BigDecimal amount = consoleService.promptForBigDecimal("Enter the amount you'd like to request: ");
         try {
             Transfer transfer = accountService.requestMoney(id, amount);
-            System.out.println(transfer);
+            consoleService.printMessage("\nNew request sent: ");
+            consoleService.printTransfer(transfer);
         } catch (Exception e) {
             BasicLogger.log(e.getMessage());
             consoleService.printErrorMessage();

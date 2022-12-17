@@ -106,4 +106,8 @@ public class ConsoleService {
         System.out.println(message);
     }
 
+    public void printTransfer(Transfer transfer) {
+        System.out.println(transfer);
+    }
+
 }

@@ -28,7 +28,7 @@ public class Transfer {
     public String toString() {
         Long senderLong = Long.valueOf(moneySenderId);
         Long recipientLong = Long.valueOf(moneyRecipientId);
-        return transferId + ": $" + amount  + " sent by: " + App.allUsers.get(senderLong)  + " to: " + App.allUsers.get(recipientLong) + " (" + status +")";
+        return transferId + ": Send $" + amount  + " from " + App.allUsers.get(senderLong)  + " to " + App.allUsers.get(recipientLong) + " (" + status +")";
     }
 
 
